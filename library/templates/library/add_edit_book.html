@@ -1,0 +1,78 @@
+{% extends 'library/base.html' %}
+
+{% block title %}{{ action }} Book | Admin Panel{% endblock %}
+{% block nav_admin %}active{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Main Menu</div>
+      <a href="{% url 'library:admin_dashboard' %}" class="sidebar-link">
+        <span class="icon">📊</span> Dashboard
+      </a>
+      <a href="{% url 'library:book_list' %}" class="sidebar-link active">
+        <span class="icon">📚</span> Manage Books
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>{{ action }} Book</h1>
+      <p>{% if action == 'Add' %}Add a new book to the library inventory{% else %}Update existing book information{% endif %}</p>
+    </div>
+
+    <div class="card" style="max-width: 600px;">
+      <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="form-group">
+            <label class="form-label">Book Number / ID *</label>
+            <input type="text" name="book_number" class="form-control" value="{{ book.book_number|default:'' }}" placeholder="e.g. BK-1001" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Book Title *</label>
+            <input type="text" name="title" class="form-control" value="{{ book.title|default:'' }}" placeholder="Enter book title" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Author Name</label>
+            <input type="text" name="author" class="form-control" value="{{ book.author|default:'' }}" placeholder="Author name">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" placeholder="Brief description of the book">{{ book.description|default:'' }}</textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Book Cover Image (Optional)</label>
+            {% if book.cover_image %}
+              <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                <img src="{{ book.cover_image.url }}" style="width: 50px; height: 65px; object-fit: cover; border-radius: 4px;">
+                <span class="text-muted" style="font-size: 0.8rem;">Current cover image</span>
+              </div>
+            {% endif %}
+            <input type="file" name="cover_image" class="form-control" accept="image/*">
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">
+              💾 Save Book
+            </button>
+            <a href="{% url 'library:book_list' %}" class="btn btn-secondary">
+              Cancel
+            </a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </main>
+</div>
+{% endblock %}

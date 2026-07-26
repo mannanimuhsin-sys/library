@@ -1,0 +1,100 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Issue Records | Admin Panel{% endblock %}
+{% block nav_admin %}active{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Circulation</div>
+      <a href="{% url 'library:issue_book' %}" class="sidebar-link">
+        <span class="icon">📤</span> Issue Book
+      </a>
+      <a href="{% url 'library:issue_records' %}" class="sidebar-link active">
+        <span class="icon">📋</span> Issue / Return Records
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h1>Issue & Return History</h1>
+        <p>Comprehensive tracking of all book issuance and return records</p>
+      </div>
+      <a href="{% url 'library:issue_book' %}" class="btn btn-primary">
+        📤 Issue New Book
+      </a>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs mb-4">
+      <a href="{% url 'library:issue_records' %}?filter=active" class="filter-tab {% if filter_type == 'active' %}active{% endif %}">Active Issued ({{ active_count }})</a>
+      <a href="{% url 'library:issue_records' %}?filter=returned" class="filter-tab {% if filter_type == 'returned' %}active{% endif %}">Returned ({{ returned_count }})</a>
+      <a href="{% url 'library:issue_records' %}?filter=all" class="filter-tab {% if filter_type == 'all' %}active{% endif %}">All Records</a>
+    </div>
+
+    <!-- Records Table -->
+    <div class="card">
+      <div class="card-body" style="padding: 0;">
+        {% if records %}
+          <div class="table-wrapper" style="border: none;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Book Title</th>
+                  <th>Issued To</th>
+                  <th>Issued Date</th>
+                  <th>Return Date</th>
+                  <th>Returned By</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for record in records %}
+                  <tr>
+                    <td style="font-weight: 700;">
+                      <div style="font-size: 0.75rem; color: var(--gold);">#{{ record.book.book_number }}</div>
+                      {{ record.book.title }}
+                    </td>
+                    <td>{{ record.issued_by_name }}</td>
+                    <td class="text-muted">{{ record.issued_date }}</td>
+                    <td class="text-muted">{{ record.return_date|default:"—" }}</td>
+                    <td>{{ record.returned_by_name|default:"—" }}</td>
+                    <td>
+                      {% if record.is_returned %}
+                        <span class="availability-badge badge-available">Returned</span>
+                      {% else %}
+                        <span class="availability-badge badge-issued">Currently Issued</span>
+                      {% endif %}
+                    </td>
+                    <td style="text-align: right;">
+                      {% if not record.is_returned %}
+                        <a href="{% url 'library:return_book' record.pk %}" class="btn btn-warning btn-sm">
+                          Return Book
+                        </a>
+                      {% else %}
+                        <span class="text-muted" style="font-size: 0.8rem;">Completed</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <h3>No Records Found</h3>
+            <p>No circulation records match the current view.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </main>
+</div>
+{% endblock %}

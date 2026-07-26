@@ -1,0 +1,67 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Return Book | Admin Panel{% endblock %}
+{% block nav_admin %}active{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Circulation</div>
+      <a href="{% url 'library:issue_book' %}" class="sidebar-link">
+        <span class="icon">📤</span> Issue Book
+      </a>
+      <a href="{% url 'library:issue_records' %}" class="sidebar-link active">
+        <span class="icon">📋</span> Issue / Return Records
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Return Book</h1>
+      <p>Record book return details. Completing return automatically makes the book available again in View Mode.</p>
+    </div>
+
+    <div class="card" style="max-width: 600px;">
+      <div class="card-body">
+        
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem;">
+          <div style="font-size: 0.75rem; color: var(--gold); font-weight: 700; text-transform: uppercase;">Issue Details</div>
+          <h3 style="margin: 4px 0;">{{ record.book.title }}</h3>
+          <div style="font-size: 0.875rem; color: var(--text-secondary);">
+            <div>Book Number: <strong>#{{ record.book.book_number }}</strong></div>
+            <div>Issued To: <strong>{{ record.issued_by_name }}</strong></div>
+            <div>Issued Date: <strong>{{ record.issued_date }}</strong></div>
+          </div>
+        </div>
+
+        <form method="POST">
+          {% csrf_token %}
+
+          <div class="form-group">
+            <label class="form-label">Returned By (Person Name) *</label>
+            <input type="text" name="returned_by_name" class="form-control" value="{{ record.issued_by_name }}" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Return Date *</label>
+            <input type="date" name="return_date" class="form-control" value="{{ today|date:'Y-m-d' }}" required>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-success" style="flex: 1; justify-content: center; padding: 12px;">
+              📥 Commit & Mark as Available
+            </button>
+            <a href="{% url 'library:issue_records' %}" class="btn btn-secondary">
+              Cancel
+            </a>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

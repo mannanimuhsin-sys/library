@@ -1,0 +1,123 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Manage Books | Admin Panel{% endblock %}
+{% block nav_admin %}active{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Main Menu</div>
+      <a href="{% url 'library:admin_dashboard' %}" class="sidebar-link">
+        <span class="icon">📊</span> Dashboard
+      </a>
+      <a href="{% url 'library:book_list' %}" class="sidebar-link active">
+        <span class="icon">📚</span> Manage Books
+      </a>
+      <a href="{% url 'library:members_list' %}" class="sidebar-link">
+        <span class="icon">👥</span> Members
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Circulation</div>
+      <a href="{% url 'library:issue_book' %}" class="sidebar-link">
+        <span class="icon">📤</span> Issue Book
+      </a>
+      <a href="{% url 'library:issue_records' %}" class="sidebar-link">
+        <span class="icon">📋</span> Issue / Return Records
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h1>Book Inventory</h1>
+        <p>Add, edit, search, and manage books in your collection</p>
+      </div>
+      <a href="{% url 'library:add_book' %}" class="btn btn-primary">
+        ➕ Add New Book
+      </a>
+    </div>
+
+    <!-- Filter & Search Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+      <div class="filter-tabs">
+        <a href="{% url 'library:book_list' %}?filter=all" class="filter-tab {% if filter_type == 'all' %}active{% endif %}">All Books</a>
+        <a href="{% url 'library:book_list' %}?filter=available" class="filter-tab {% if filter_type == 'available' %}active{% endif %}">Available</a>
+        <a href="{% url 'library:book_list' %}?filter=issued" class="filter-tab {% if filter_type == 'issued' %}active{% endif %}">Issued</a>
+      </div>
+
+      <form method="GET" action="{% url 'library:book_list' %}">
+        <input type="hidden" name="filter" value="{{ filter_type }}">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" name="search" value="{{ search_query }}" placeholder="Search by number or title...">
+        </div>
+      </form>
+    </div>
+
+    <!-- Books Table -->
+    <div class="card">
+      <div class="card-body" style="padding: 0;">
+        {% if books %}
+          <div class="table-wrapper" style="border: none;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cover</th>
+                  <th>Number</th>
+                  <th>Title</th>
+                  <th>Author</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for book in books %}
+                  <tr>
+                    <td>
+                      <div class="book-thumb">
+                        {% if book.cover_image %}
+                          <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+                        {% else %}
+                          📖
+                        {% endif %}
+                      </div>
+                    </td>
+                    <td><strong class="text-gold">#{{ book.book_number }}</strong></td>
+                    <td style="font-weight: 700;">{{ book.title }}</td>
+                    <td class="text-muted">{{ book.author|default:"—" }}</td>
+                    <td>
+                      {% if book.is_available %}
+                        <span class="availability-badge badge-available">Available</span>
+                      {% else %}
+                        <span class="availability-badge badge-issued">Issued</span>
+                      {% endif %}
+                    </td>
+                    <td style="text-align: right;">
+                      <div class="actions-row" style="justify-content: flex-end;">
+                        <a href="{% url 'library:edit_book' book.pk %}" class="btn btn-secondary btn-sm">Edit</a>
+                        <a href="{% url 'library:delete_book' book.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-icon">📚</div>
+            <h3>No Books Found</h3>
+            <p>No books match your current filter or search criteria.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </main>
+</div>
+{% endblock %}

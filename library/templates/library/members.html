@@ -1,0 +1,92 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Members | Admin Panel{% endblock %}
+{% block nav_admin %}active{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Main Menu</div>
+      <a href="{% url 'library:admin_dashboard' %}" class="sidebar-link">
+        <span class="icon">📊</span> Dashboard
+      </a>
+      <a href="{% url 'library:book_list' %}" class="sidebar-link">
+        <span class="icon">📚</span> Manage Books
+      </a>
+      <a href="{% url 'library:members_list' %}" class="sidebar-link active">
+        <span class="icon">👥</span> Members
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Member Management</h1>
+      <p>Approve public registrations or manage registered library members</p>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs mb-4">
+      <a href="{% url 'library:members_list' %}?filter=all" class="filter-tab {% if filter_type == 'all' %}active{% endif %}">All Members</a>
+      <a href="{% url 'library:members_list' %}?filter=pending" class="filter-tab {% if filter_type == 'pending' %}active{% endif %}">Pending ({{ pending_count }})</a>
+      <a href="{% url 'library:members_list' %}?filter=approved" class="filter-tab {% if filter_type == 'approved' %}active{% endif %}">Approved ({{ approved_count }})</a>
+    </div>
+
+    <!-- Members Table -->
+    <div class="card">
+      <div class="card-body" style="padding: 0;">
+        {% if members %}
+          <div class="table-wrapper" style="border: none;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Mobile Number</th>
+                  <th>Registration Date</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for member in members %}
+                  <tr>
+                    <td style="font-weight: 700;">{{ member.name }}</td>
+                    <td>{{ member.mobile }}</td>
+                    <td class="text-muted">{{ member.registered_date|date:"d M Y, h:i A" }}</td>
+                    <td>
+                      {% if member.is_approved %}
+                        <span class="availability-badge badge-approved">Approved</span>
+                      {% else %}
+                        <span class="availability-badge badge-pending">Pending Approval</span>
+                      {% endif %}
+                    </td>
+                    <td style="text-align: right;">
+                      <div class="actions-row" style="justify-content: flex-end;">
+                        <a href="{% url 'library:approve_member' member.pk %}" class="btn {% if member.is_approved %}btn-secondary{% else %}btn-success{% endif %} btn-sm">
+                          {% if member.is_approved %}Revoke{% else %}Approve{% endif %}
+                        </a>
+                        <a href="{% url 'library:delete_member' member.pk %}" class="btn btn-danger btn-sm">
+                          Remove
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-icon">👥</div>
+            <h3>No Members Found</h3>
+            <p>No member records match the selected filter.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </main>
+</div>
+{% endblock %}

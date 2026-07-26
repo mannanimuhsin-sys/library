@@ -1,0 +1,31 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Confirm Delete | Admin Panel{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  <main class="main-content">
+    <div class="card confirm-card">
+      <div class="card-body">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+        <h2>Confirm Deletion</h2>
+        <p style="color: var(--text-secondary); margin: 1rem 0 2rem;">
+          Are you sure you want to delete the {{ type }} <strong>"{{ object }}"</strong>? This action cannot be undone.
+        </p>
+
+        <form method="POST">
+          {% csrf_token %}
+          <div style="display: flex; gap: 1rem; justify-content: center;">
+            <button type="submit" class="btn btn-danger">
+              🗑 Yes, Delete
+            </button>
+            <a href="javascript:history.back()" class="btn btn-secondary">
+              Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

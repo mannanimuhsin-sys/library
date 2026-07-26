@@ -1,0 +1,161 @@
+{% extends 'library/base.html' %}
+{% load static %}
+
+{% block title %}Library Catalog | Available Books{% endblock %}
+{% block nav_home %}active{% endblock %}
+
+{% block content %}
+<div class="container">
+  
+  <!-- Top Eye-Catching Stats Header Bar -->
+  <div class="top-stats-container">
+    
+    <div class="top-stat-box green-theme">
+      <div class="stat-box-left">
+        <div class="stat-box-icon">📚</div>
+        <div>
+          <span class="stat-box-label">Available Books</span>
+          <h2 class="stat-box-number">{{ available_count }}</h2>
+        </div>
+      </div>
+      <div class="stat-box-badge badge-green">Ready to Borrow</div>
+    </div>
+
+    <div class="top-stat-box orange-theme">
+      <div class="stat-box-left">
+        <div class="stat-box-icon">📖</div>
+        <div>
+          <span class="stat-box-label">Currently Issued</span>
+          <h2 class="stat-box-number">{{ issued_count }}</h2>
+        </div>
+      </div>
+      <div class="stat-box-badge badge-orange">In Reading</div>
+    </div>
+
+    <div class="top-stat-box gold-theme">
+      <div class="stat-box-left">
+        <div class="stat-box-icon">✨</div>
+        <div>
+          <span class="stat-box-label">Total Collection</span>
+          <h2 class="stat-box-number">{{ total_books }}</h2>
+        </div>
+      </div>
+      <div class="stat-box-badge badge-gold">Library Database</div>
+    </div>
+
+  </div>
+
+  <!-- Top Hero & Highlighted Member Registration Section -->
+  <section class="hero-section">
+    <div class="hero-grid">
+      
+      <!-- Left Side: Hero Banner & Search -->
+      <div class="hero-left-card">
+        <div class="hero-card-content">
+          <div class="hero-badge">
+            <span class="pulse-dot"></span>
+            DIGITAL LIBRARY CATALOG
+          </div>
+          
+          <h1 class="hero-title-gradient">Discover & Borrow Your Favorite Books</h1>
+          <p class="hero-lead-text">
+            Browse our extensive collection of 60+ books, search by title, author or number, and register as a member to start borrowing.
+          </p>
+          
+          <!-- Integrated Search Box -->
+          <form method="GET" action="{% url 'library:public_home' %}" class="hero-search-form">
+            <div class="hero-search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" name="search" value="{{ search_query }}" placeholder="Search by title, author, or book number...">
+              <button type="submit" class="btn btn-primary btn-search">
+                <span>Search</span> 🚀
+              </button>
+            </div>
+          </form>
+
+          <!-- Quick Search Tag Pills -->
+          <div class="hero-quick-tags">
+            <span class="quick-tag-label">Popular Topics:</span>
+            <a href="{% url 'library:public_home' %}?search=ഖുർആൻ" class="quick-tag">📖 ഖുർആൻ</a>
+            <a href="{% url 'library:public_home' %}?search=ഇമാം" class="quick-tag">📜 ഇമാം</a>
+            <a href="{% url 'library:public_home' %}?search=പ്രവാചക" class="quick-tag">✨ പ്രവാചകൻ</a>
+            <a href="{% url 'library:public_home' %}?search=റമളാൻ" class="quick-tag">🌙 റമളാൻ</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side: Top Highlighted Member Registration Box -->
+      <div class="hero-right">
+        <div class="register-panel highlighted-register-box">
+          <div class="register-badge">✨ MEMBER REGISTRATION</div>
+          <h2>Member Registration</h2>
+          <p class="register-desc">
+            Register to become a member. Admin will approve your account.
+          </p>
+
+          <form method="POST" action="{% url 'library:register_member' %}">
+            {% csrf_token %}
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" name="name" class="form-control" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Mobile Number</label>
+              <input type="tel" name="mobile" class="form-control" placeholder="Enter mobile number" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" style="justify-content: center; margin-top: 1rem;">
+              Submit Registration 🚀
+            </button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Books Section -->
+  <div style="margin-bottom: 4rem; margin-top: 2.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <div>
+        <h2 class="section-title">Available Books</h2>
+        <p class="section-subtitle" style="margin-bottom:0;">Currently available for issuing</p>
+      </div>
+      {% if search_query %}
+        <a href="{% url 'library:public_home' %}" class="btn btn-secondary btn-sm">Clear Search</a>
+      {% endif %}
+    </div>
+
+    {% if available_books %}
+      <div class="books-grid">
+        {% for book in available_books %}
+          <div class="book-card">
+            <div class="book-cover">
+              {% if book.cover_image %}
+                <img src="{{ book.cover_image.url }}" alt="{{ book.title }}">
+              {% else %}
+                📖
+              {% endif %}
+            </div>
+            <div class="book-info">
+              <div class="book-number">#{{ book.book_number }}</div>
+              <div class="book-title">{{ book.title }}</div>
+              <div class="book-author">By {{ book.author|default:"Unknown Author" }}</div>
+              <span class="availability-badge badge-available">● Available</span>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="card empty-state">
+        <div class="empty-icon">📚</div>
+        <h3>No Available Books Found</h3>
+        <p>{% if search_query %}No available books match your search "{{ search_query }}".{% else %}There are currently no books available in the library.{% endif %}</p>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
+

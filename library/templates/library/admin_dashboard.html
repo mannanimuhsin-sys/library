@@ -1,0 +1,174 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Admin Dashboard | Library MS{% endblock %}
+{% block nav_admin %}active{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Main Menu</div>
+      <a href="{% url 'library:admin_dashboard' %}" class="sidebar-link active">
+        <span class="icon">📊</span> Dashboard
+      </a>
+      <a href="{% url 'library:book_list' %}" class="sidebar-link">
+        <span class="icon">📚</span> Manage Books
+      </a>
+      <a href="{% url 'library:members_list' %}" class="sidebar-link">
+        <span class="icon">👥</span> Members
+        {% if pending_members %}
+          <span class="badge-count">{{ pending_members }}</span>
+        {% endif %}
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Circulation</div>
+      <a href="{% url 'library:issue_book' %}" class="sidebar-link">
+        <span class="icon">📤</span> Issue Book
+      </a>
+      <a href="{% url 'library:issue_records' %}" class="sidebar-link">
+        <span class="icon">📋</span> Issue / Return Records
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Public</div>
+      <a href="{% url 'library:public_home' %}" class="sidebar-link" target="_blank">
+        <span class="icon">🌐</span> View Mode (Public)
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Admin Dashboard</h1>
+      <p>System overview, inventory stats, and member management</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card gold">
+        <div class="stat-icon gold">📚</div>
+        <div class="stat-info">
+          <div class="stat-value">{{ total_books }}</div>
+          <div class="stat-label">Total Books</div>
+        </div>
+      </div>
+
+      <div class="stat-card green">
+        <div class="stat-icon green">✅</div>
+        <div class="stat-info">
+          <div class="stat-value">{{ available_books }}</div>
+          <div class="stat-label">Available Books</div>
+        </div>
+      </div>
+
+      <div class="stat-card red">
+        <div class="stat-icon red">📖</div>
+        <div class="stat-info">
+          <div class="stat-value">{{ issued_books }}</div>
+          <div class="stat-label">Issued Books</div>
+        </div>
+      </div>
+
+      <div class="stat-card blue">
+        <div class="stat-icon blue">👥</div>
+        <div class="stat-info">
+          <div class="stat-value">{{ total_members }}</div>
+          <div class="stat-label">Total Members</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Two Column Section -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem;">
+      
+      <!-- Pending Member Approvals -->
+      <div class="card">
+        <div class="card-header">
+          <span>⏳ Pending Registrations</span>
+          <a href="{% url 'library:members_list' %}?filter=pending" class="btn btn-secondary btn-sm">View All</a>
+        </div>
+        <div class="card-body" style="padding: 0;">
+          {% if pending_registrations %}
+            <div class="table-wrapper" style="border: none;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Mobile</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for member in pending_registrations %}
+                    <tr>
+                      <td style="font-weight: 600;">{{ member.name }}</td>
+                      <td>{{ member.mobile }}</td>
+                      <td>
+                        <a href="{% url 'library:approve_member' member.pk %}" class="btn btn-success btn-sm">
+                          Approve
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="empty-state" style="padding: 2rem;">
+              <p>No pending registration requests.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Recent Active Issues -->
+      <div class="card">
+        <div class="card-header">
+          <span>📤 Currently Issued Books</span>
+          <a href="{% url 'library:issue_records' %}" class="btn btn-secondary btn-sm">View All</a>
+        </div>
+        <div class="card-body" style="padding: 0;">
+          {% if recent_issues %}
+            <div class="table-wrapper" style="border: none;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Book</th>
+                    <th>Issued To</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for issue in recent_issues %}
+                    <tr>
+                      <td style="font-weight: 600;">{{ issue.book.title }}</td>
+                      <td>{{ issue.issued_by_name }}</td>
+                      <td>
+                        <a href="{% url 'library:return_book' issue.pk %}" class="btn btn-warning btn-sm">
+                          Return
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="empty-state" style="padding: 2rem;">
+              <p>No books are currently issued.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+{% endblock %}

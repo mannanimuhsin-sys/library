@@ -1,0 +1,105 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Issue Book | Admin Panel{% endblock %}
+{% block nav_admin %}active{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Main Menu</div>
+      <a href="{% url 'library:admin_dashboard' %}" class="sidebar-link">
+        <span class="icon">📊</span> Dashboard
+      </a>
+      <a href="{% url 'library:book_list' %}" class="sidebar-link">
+        <span class="icon">📚</span> Manage Books
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Circulation</div>
+      <a href="{% url 'library:issue_book' %}" class="sidebar-link active">
+        <span class="icon">📤</span> Issue Book
+      </a>
+      <a href="{% url 'library:issue_records' %}" class="sidebar-link">
+        <span class="icon">📋</span> Issue / Return Records
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>Issue a Book</h1>
+      <p>Assign a book to a registered member or person. Upon issuing, the book automatically becomes unavailable in View Mode.</p>
+    </div>
+
+    <div class="card" style="max-width: 600px;">
+      <div class="card-body">
+        
+        {% if available_books %}
+          <form method="POST">
+            {% csrf_token %}
+
+            <div class="form-group">
+              <label class="form-label">Select Book *</label>
+              <select name="book_id" class="form-control" required>
+                <option value="">-- Choose Available Book --</option>
+                {% for book in available_books %}
+                  <option value="{{ book.id }}">#{{ book.book_number }} - {{ book.title }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Select Registered Member (Optional)</label>
+              <select name="member_id" id="memberSelect" class="form-control" onchange="autoFillMemberName(this)">
+                <option value="">-- Select Member or Type Name Below --</option>
+                {% for member in approved_members %}
+                  <option value="{{ member.id }}" data-name="{{ member.name }}">{{ member.name }} ({{ member.mobile }})</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Borrower Name (Issued To) *</label>
+              <input type="text" name="issued_by_name" id="issuedByName" class="form-control" placeholder="Enter recipient full name" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Issue Date *</label>
+              <input type="date" name="issued_date" class="form-control" value="{{ today|date:'Y-m-d' }}" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Expected Return Date (Optional)</label>
+              <input type="date" name="expected_return_date" class="form-control">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" style="justify-content: center; margin-top: 1.5rem; padding: 12px;">
+              📤 Confirm & Issue Book
+            </button>
+          </form>
+        {% else %}
+          <div class="empty-state" style="padding: 2rem;">
+            <div class="empty-icon">⚠️</div>
+            <h3>No Available Books</h3>
+            <p>All books in the inventory are currently issued out.</p>
+            <a href="{% url 'library:add_book' %}" class="btn btn-primary mt-2">Add New Book</a>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  function autoFillMemberName(select) {
+    const selectedOption = select.options[select.selectedIndex];
+    const name = selectedOption.getAttribute('data-name');
+    if (name) {
+      document.getElementById('issuedByName').value = name;
+    }
+  }
+</script>
+{% endblock %}
